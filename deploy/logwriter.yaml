@@ -1,0 +1,191 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cp4d-logwriter-example
+  labels:
+    cp4d-audit: "yes"
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000321000
+  imagePullSecrets:
+  - name: "cp.stg.icr.io"
+  volumes:
+  - name: varlog
+    emptyDir: {}
+  containers:
+  - name: sidecar
+    image: youngpig/fluentd:v3
+    imagePullPolicy: IfNotPresent
+    args:
+    - /bin/sh
+    - -c
+    - fluentd -c /fluentd/etc/fluent.conf
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/sh", "-c", "sleep 5"]
+    securityContext:
+      runAsNonRoot: true
+    env:
+    - name: NUM
+      value: "3"
+    resources:
+      limits:
+        memory: 250Mi
+        cpu: 250m
+      requests:
+        memory: 100Mi
+        cpu: 100m
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+
+  - name: logwriter1
+    image: youngpig/logwriter:latest
+    imagePullPolicy: IfNotPresent
+    args:
+    - /bin/sh
+    - -c
+    - ./writer.sh
+    securityContext:
+      runAsNonRoot: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 100m
+      requests:
+        memory: 100Mi
+        cpu: 100m
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: NODENAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: PODIPADDRESS
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: CONTAINERNAME
+      value: logwriter1
+    - name: CONTAINERNUM
+      value: "1"
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+    envFrom:
+    - configMapRef:
+        name: product-configmap
+  
+  - name: logwriter2
+    image: youngpig/logwriter:latest
+    imagePullPolicy: IfNotPresent
+    args:
+    - /bin/sh
+    - -c
+    - ./writer.sh
+    securityContext:
+      runAsNonRoot: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 100m
+      requests:
+        memory: 100Mi
+        cpu: 100m
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: NODENAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: PODIPADDRESS
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: CONTAINERNAME
+      value: logwriter2
+    - name: CONTAINERNUM
+      value: "2"
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+    envFrom:
+    - configMapRef:
+        name: product-configmap
+  
+  - name: logwriter3
+    image: youngpig/logwriter:latest
+    imagePullPolicy: IfNotPresent
+    args:
+    - /bin/sh
+    - -c
+    - ./writer.sh
+    securityContext:
+      runAsNonRoot: true
+    resources:
+      limits:
+        memory: 100Mi
+        cpu: 100m
+      requests:
+        memory: 100Mi
+        cpu: 100m
+    env:
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    - name: NODENAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: spec.nodeName
+    - name: PODIPADDRESS
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: status.podIP
+    - name: CONTAINERNAME
+      value: logwriter3
+    - name: CONTAINERNUM
+      value: "3"
+    volumeMounts:
+    - name: varlog
+      mountPath: /var/log
+    envFrom:
+    - configMapRef:
+        name: product-configmap
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
