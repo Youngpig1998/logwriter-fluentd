@@ -4,11 +4,7 @@
 
 
 #创建环境变量文件
-j=$NUM
-for ((i=1; i<=j; i++))
-do
-touch /var/log/env$i 
-done
+touch /var/log/env.json 
 touch /var/log/serviceName.log
 
 

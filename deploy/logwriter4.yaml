@@ -13,9 +13,18 @@ spec:
   volumes:
   - name: varlog
     emptyDir: {}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: key-affinity-label
+            operator: In
+            values:
+            - "value-affinity-label"
   containers:
   - name: sidecar
-    image: youngpig/fluentd:v3
+    image: youngpig/fluentd:v5
     imagePullPolicy: IfNotPresent
     args:
     - /bin/sh
@@ -27,9 +36,6 @@ spec:
           command: ["/bin/sh", "-c", "sleep 5"]
     securityContext:
       runAsNonRoot: true
-    env:
-    - name: NUM
-      value: "3"
     resources:
       limits:
         memory: 250Mi
@@ -40,9 +46,9 @@ spec:
     volumeMounts:
     - name: varlog
       mountPath: /var/log
-
+  
   - name: logwriter1
-    image: youngpig/logwriter:latest
+    image: youngpig/logwriter:v4
     imagePullPolicy: IfNotPresent
     args:
     - /bin/sh
@@ -75,17 +81,19 @@ spec:
           fieldPath: status.podIP
     - name: CONTAINERNAME
       value: logwriter1
-    - name: CONTAINERNUM
-      value: "1"
+    - name: ISBEGIN
+      value: "true"
+    - name: ISEND
+      value: "false"
     volumeMounts:
     - name: varlog
       mountPath: /var/log
     envFrom:
     - configMapRef:
         name: product-configmap
-  
+
   - name: logwriter2
-    image: youngpig/logwriter:latest
+    image: youngpig/logwriter:v4
     imagePullPolicy: IfNotPresent
     args:
     - /bin/sh
@@ -118,51 +126,10 @@ spec:
           fieldPath: status.podIP
     - name: CONTAINERNAME
       value: logwriter2
-    - name: CONTAINERNUM
-      value: "2"
-    volumeMounts:
-    - name: varlog
-      mountPath: /var/log
-    envFrom:
-    - configMapRef:
-        name: product-configmap
-  
-  - name: logwriter3
-    image: youngpig/logwriter:latest
-    imagePullPolicy: IfNotPresent
-    args:
-    - /bin/sh
-    - -c
-    - ./writer.sh
-    securityContext:
-      runAsNonRoot: true
-    resources:
-      limits:
-        memory: 100Mi
-        cpu: 100m
-      requests:
-        memory: 100Mi
-        cpu: 100m
-    env:
-    - name: NAMESPACE
-      valueFrom:
-        fieldRef:
-          apiVersion: v1
-          fieldPath: metadata.namespace
-    - name: NODENAME
-      valueFrom:
-        fieldRef:
-          apiVersion: v1
-          fieldPath: spec.nodeName
-    - name: PODIPADDRESS
-      valueFrom:
-        fieldRef:
-          apiVersion: v1
-          fieldPath: status.podIP
-    - name: CONTAINERNAME
-      value: logwriter3
-    - name: CONTAINERNUM
-      value: "3"
+    - name: ISBEGIN
+      value: "false"
+    - name: ISEND
+      value: "true"
     volumeMounts:
     - name: varlog
       mountPath: /var/log
@@ -172,10 +139,6 @@ spec:
 
 
   
-
-
-
-
 
 
 

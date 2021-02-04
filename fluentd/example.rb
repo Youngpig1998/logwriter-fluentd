@@ -1,30 +1,46 @@
+require 'json'
+
 def filter(tag, time, record)
+
+  json = File.read('/var/log/env.json')
+  containerInfo = JSON.parse(json)
+
+  
 
   record = record.merge({:"attachments" => {:"name" => "NA1"}})
   record[:"attachments"] = record[:"attachments"].merge({:"content" => {:"sourceCrn" => 10}})
 
   $i = 1
-  $num = 10
-  while $i < $num  do
-    $path = "/var/log/env#$i"
-    if(File.exist?($path)) && $i == 1
-      env=Hash[*File.read($path).split(/[= \n]+/)]
-      record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container#$i#_id" => env["CONTAINERID"]}})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => env["CONTAINERNAME"]})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => env["NAMESPACE"]})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => env["PODIPADDRESS"]})
-    elsif(File.exist?($path))
-      env=Hash[*File.read($path).split(/[= \n]+/)]
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_id" => env["CONTAINERID"]})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => env["CONTAINERNAME"]})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => env["NAMESPACE"]})
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => env["PODIPADDRESS"]})
+  containerInfo.each do |container|
+    # puts container["id"]+"   "+container["name"]+"  "+container["class"]+"    "+container["phone"]
+    if container["containername"] == "logwriter1"
+      record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container#$i#_id" => container["containerid"]}})
     else
-      break
+      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_id" => container["containerid"]})
     end
-    $i +=1
+    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => container["containername"]})
+    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => container["namespace"]})
+    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => container["podipaddress"]})
+    $i += 1
+
   end
 
+  # $i = 1
+  # $num = 10
+  # while $i < $num  do
+  #   if  $containername == "logwriter#$i" and  $i == 1
+  #     record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container#$i#_id" => $containerid}})         
+  #   elsif  $containername == "logwriter#$i"
+  #     record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_id" => $containerid})
+  #   else
+  #     break
+  #   end
+  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => $containername})
+  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => $namespace})
+  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => $podipaddress})
+  #   $i += 1
+  # end
+    
   record
 
 

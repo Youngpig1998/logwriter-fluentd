@@ -1,16 +1,59 @@
 #! /bin/sh
 
 
-
-#将容器相关信息输出到属于容器自己的env文件中
-echo NAMESPACE=$NAMESPACE >> /var/log/env$CONTAINERNUM
-echo CONTAINERNAME=$CONTAINERNAME >> /var/log/env$CONTAINERNUM
-echo NODENAME=$NODENAME >> /var/log/env$CONTAINERNUM
 CONTAINERID="$(grep "memory:/" < /proc/self/cgroup | sed 's|.*/||')"
-echo CONTAINERID=$CONTAINERID >> /var/log/env$CONTAINERNUM
-echo PODIPADDRESS=$PODIPADDRESS >> /var/log/env$CONTAINERNUM
+
+if [[ $ISBEGIN == "true" ]]; then
+    echo [ >> /var/log/env.json
+fi
 
 
+echo -e "\t{" >> /var/log/env.json
+echo -e "\t\t\"namespace\":\"$NAMESPACE\"," >> /var/log/env.json
+echo -e "\t\t\"nodename\":\"$NODENAME\"," >> /var/log/env.json
+echo -e "\t\t\"podipaddress\":\"$PODIPADDRESS\"," >> /var/log/env.json
+echo -e "\t\t\"containername\":\"$CONTAINERNAME\"," >> /var/log/env.json
+echo -e "\t\t\"containerid\":\"$CONTAINERID\"" >> /var/log/env.json
+
+if [[ $ISEND == "true" ]]; then
+    echo -e "\t}" >> /var/log/env.json
+    echo ] >> /var/log/env.json
+else
+    echo -e "\t}," >> /var/log/env.json
+
+fi
+
+
+
+# if [[ $CONTAINERNUM != "1" ]]; then 
+#     echo , >> /var/log/env.json
+# fi
+
+
+# echo -e "{\n" >> /var/log/env.json
+# echo -e '\t"data'$CONTAINERNUM'":[\n' >> /var/log/env.json
+# for ((i=0;i<5;i++))
+# do
+#     echo -e '\t\t{\n'  >> /var/log/env.json
+#     num=$(echo $((${#array[@]}-1)))
+#     if [ "$i" == "4" ];
+#     then
+#         echo -e "\t\t\t\"containerid\":\"$CONTAINERID\"}\n" >> /var/log/env.json
+#     elif [ "$i" == "0" ];
+#     then
+#         echo -e "\t\t\t\"namespace\":\"$NAMESPACE\"},\n" >> /var/log/env.json
+#     elif [ "$i" == "1" ];
+#     then
+#         echo -e "\t\t\t\"nodename\":\"$NODENAME\"},\n" >> /var/log/env.json
+#     elif [ "$i" == "2" ];
+#     then
+#         echo -e "\t\t\t\"podipaddress\":\"$PODIPADDRESS\"},\n" >> /var/log/env.json
+#     else
+#         echo -e "\t\t\t\"containername\":\"$CONTAINERNAME\"},\n" >> /var/log/env.json
+#     fi
+# done
+# echo -e "\t]\n"  >> /var/log/env.json
+# echo -e "}\n" >> /var/log/env.json
 
 
 
