@@ -1,6 +1,6 @@
-logwriter文件夹是两个部署文件中youngpig/logwriter:v4镜像的dockerfile
+logwriter文件夹是两个部署文件中youngpig/mylogwriter:latest镜像的dockerfile
 
-fluentd文件夹是两个部署文件中youngpig/fluentd:v5镜像的dockerfile
+fluentd文件夹是两个部署文件中youngpig/myfluentd:latest镜像的dockerfile
 
 deploy文件夹里是部署文件
 
