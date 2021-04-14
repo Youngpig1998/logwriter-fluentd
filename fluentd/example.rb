@@ -1,49 +1,41 @@
-require 'json'
-
 def filter(tag, time, record)
-
-  json = File.read('/var/log/env.json')
-  containerInfo = JSON.parse(json)
-
-  
-
-  record = record.merge({:"attachments" => {:"name" => "NA1"}})
-  record[:"attachments"] = record[:"attachments"].merge({:"content" => {:"sourceCrn" => 10}})
-
-  $i = 1
-  containerInfo.each do |container|
-    # puts container["id"]+"   "+container["name"]+"  "+container["class"]+"    "+container["phone"]
-    if container["containername"] == "logwriter1"
-      record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container#$i#_id" => container["containerid"]}})
-    else
-      record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_id" => container["containerid"]})
-    end
-    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => container["containername"]})
-    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => container["namespace"]})
-    record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => container["podipaddress"]})
-    $i += 1
-
+  if(File.exist?('/var/log/env'))
+    env=Hash[*File.read('/var/log/env').split(/[= \n]+/)]
+  else
+    env={}
   end
 
-  # $i = 1
-  # $num = 10
-  # while $i < $num  do
-  #   if  $containername == "logwriter#$i" and  $i == 1
-  #     record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container#$i#_id" => $containerid}})         
-  #   elsif  $containername == "logwriter#$i"
-  #     record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_id" => $containerid})
-  #   else
-  #     break
-  #   end
-  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_name" => $containername})
-  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_namespace" => $namespace})
-  #   record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container#$i#_pod" => $podipaddress})
-  #   $i += 1
-  # end
-    
+  $logSourceCRN = record["logSourceCRN"]
+  $message = record["message"]
+
+  record = record.merge({:"attachments" => [{:"name" => "ibm-cp-data"}]})
+  record[:"attachments"][0] = record[:"attachments"][0].merge({:"contentType" => "http://schemas.ibm.com/cloud/content/1.0/cloudpak"})
+  record[:"attachments"][0] = record[:"attachments"][0].merge({:"logSourceCRN" => $logSourceCRN})
+  record[:"attachments"][0] = record[:"attachments"][0].merge({:"message" => $message})
+  record[:"attachments"][0] = record[:"attachments"][0].merge({:"content" => {:"sourceCrn" => 10}})
+
+  record[:"attachments"][0][:"content"] = record[:"attachments"][0][:"content"].merge({:"kubernetes" => {:"container_id" => env["CONTAINERID"]}})
+  record[:"attachments"][0][:"content"][:"kubernetes"] = record[:"attachments"][0][:"content"][:"kubernetes"].merge({:"container_name" => env["CONTAINERNAME"]})
+  record[:"attachments"][0][:"content"][:"kubernetes"] = record[:"attachments"][0][:"content"][:"kubernetes"].merge({:"namespace" => env["NAMESPACE"]})
+  record[:"attachments"][0][:"content"][:"kubernetes"] = record[:"attachments"][0][:"content"][:"kubernetes"].merge({:"pod" => env["PODIPADDRESS"]})
   record
 
 
+
+
+
+
+
+
+
+
+  # record = record.merge({:"attachments" => {:"name" => "NA"}})
+  # record[:"attachments"] = record[:"attachments"].merge({:"content" => {:"sourceCrn" => 10}})
+  # record[:"attachments"][:"content"] = record[:"attachments"][:"content"].merge({:"kubernetes" => {:"container_id" => env["CONTAINERID"]}})
+  # record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"container_name" => env["CONTAINERNAME"]})
+  # record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"namespace" => env["NAMESPACE"]})
+  # record[:"attachments"][:"content"][:"kubernetes"] = record[:"attachments"][:"content"][:"kubernetes"].merge({:"pod" => env["PODIPADDRESS"]})
+  # record
 end
 
 # def code(record)
