@@ -1,67 +1,18 @@
 #! /bin/sh
+touch /var/log/serviceName.log
 
-
+touch /var/log/env
+echo NAMESPACE=$NAMESPACE >> /var/log/env
+echo CONTAINERNAME=$CONTAINERNAME >> /var/log/env
+echo NODENAME=$NODENAME >> /var/log/env
 CONTAINERID="$(grep "memory:/" < /proc/self/cgroup | sed 's|.*/||')"
-
-if [[ $ISBEGIN == "true" ]]; then
-    echo [ >> /var/log/env.json
-fi
-
-
-echo -e "\t{" >> /var/log/env.json
-echo -e "\t\t\"namespace\":\"$NAMESPACE\"," >> /var/log/env.json
-echo -e "\t\t\"nodename\":\"$NODENAME\"," >> /var/log/env.json
-echo -e "\t\t\"podipaddress\":\"$PODIPADDRESS\"," >> /var/log/env.json
-echo -e "\t\t\"containername\":\"$CONTAINERNAME\"," >> /var/log/env.json
-echo -e "\t\t\"containerid\":\"$CONTAINERID\"" >> /var/log/env.json
-
-if [[ $ISEND == "true" ]]; then
-    echo -e "\t}" >> /var/log/env.json
-    echo ] >> /var/log/env.json
-else
-    echo -e "\t}," >> /var/log/env.json
-
-fi
-
-
-
-# if [[ $CONTAINERNUM != "1" ]]; then 
-#     echo , >> /var/log/env.json
-# fi
-
-
-# echo -e "{\n" >> /var/log/env.json
-# echo -e '\t"data'$CONTAINERNUM'":[\n' >> /var/log/env.json
-# for ((i=0;i<5;i++))
-# do
-#     echo -e '\t\t{\n'  >> /var/log/env.json
-#     num=$(echo $((${#array[@]}-1)))
-#     if [ "$i" == "4" ];
-#     then
-#         echo -e "\t\t\t\"containerid\":\"$CONTAINERID\"}\n" >> /var/log/env.json
-#     elif [ "$i" == "0" ];
-#     then
-#         echo -e "\t\t\t\"namespace\":\"$NAMESPACE\"},\n" >> /var/log/env.json
-#     elif [ "$i" == "1" ];
-#     then
-#         echo -e "\t\t\t\"nodename\":\"$NODENAME\"},\n" >> /var/log/env.json
-#     elif [ "$i" == "2" ];
-#     then
-#         echo -e "\t\t\t\"podipaddress\":\"$PODIPADDRESS\"},\n" >> /var/log/env.json
-#     else
-#         echo -e "\t\t\t\"containername\":\"$CONTAINERNAME\"},\n" >> /var/log/env.json
-#     fi
-# done
-# echo -e "\t]\n"  >> /var/log/env.json
-# echo -e "}\n" >> /var/log/env.json
-
-
-
+echo CONTAINERID=$CONTAINERID >> /var/log/env
+echo PODIPADDRESS=$PODIPADDRESS >> /var/log/env
 
 while true
 do
     if [[ $ENABLE_AUDIT == "true" ]]; then
-        echo '{"payload":{"initiator":{"id":"IBMid-xxx","name":"ttauchi@jp.ibm.com","typeURI":"service/security/account/user","credential":{"type":"user"}},"target":{"id":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000:document-set:9a62aae0-1b07-11ea-875c-abaf70277755","name":"documents_en.csv","typeURI":"knowledge-studio/document-set"},"action":"knowledge-studio.document-set.create","outcome":"success","reason":{"reasonCode":200},"severity":"normal","eventTime":"2021-1-17T04:43:38.59+0000","eventType":"activity","typeURI":"http://schemas.dmtf.org/cloud/audit/1.0/event","message":"Knowledge Studio: create document-set for document-set 9a62aae0-1b07-11ea-875c-abaf70277755","requestData":{"numDocuments":10}},"saveServiceCopy":true,"logSourceCRN":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000::","observer":{"name":"ActivityTracker"},"dataEvent":false}'  >> /var/log/serviceName.log
+        echo '{"observer": {"name": "ActivityTracker"},"dataEvent": false,"saveServiceCopy": false,"outcome": "success","typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event","eventType": "activity","eventTime": "2021-04-07T04:46:10.94+0000","action": "conversation.skill.delete","initiator": {"id": "1000330999","name": "admin","typeURI": "service/security/account/user","credential": {"type": "user"}},"target": {"id": "crn:v1:production:us-south:assistant:icp:a/02a92df0-657c-43c9-94fc-2280450b1e0b:00000000-0000-0000-1617-768394230058:skill:9d6b1343-99d4-4c8d-83e6-4da5330bc8d9","name": "Customer Care Sample Skill","typeURI": "conversation/skill"},"reason": {"reasonCode": 200},"logSourceCRN": "crn:v1:production:us-south:assistant:icp:a/02a92df0-657c-43c9-94fc-2280450b1e0b:00000000-0000-0000-1617-768394230058::","message": "Watson Assistant: delete skill","requestData": {"platformSource": "Watson Assistant","method": "DELETE","url": "/v2/skills/9d6b1343-99d4-4c8d-83e6-4da5330bc8d9?version=2018-07-10","accountId": "02a92df0-657c-43c9-94fc-2280450b1e0b","instanceId": "00000000-0000-0000-1617-768394230058","region": "us-south","resourceGroupId": "ba4ab788-68a9-492b-87da-9179cb1e6541"},"severity": "critical","typeURL": "http://schemas.dmtf.org/cloud/audit/1.0/event","id": "icp:a6535541-47fa-4e7a-a01a-d7282a1a9c9a"}'  >> /var/log/serviceName.log
         #echo '{"payload":{"initiator":{"id":"IBMid-xxx","name":"ttauchi@jp.ibm.com","typeURI":"service/security/account/user","credential":{"type":"user"}},"target":{"id":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000:document:9a62aae0-1b07-11ea-875c-abaf70277755-1","name":"documents_en.csv","typeURI":"knowledge-studio/document"},"action":"knowledge-studio.document.delete","outcome":"success","reason":{"reasonCode":200},"severity":"critical","eventTime":"2019-12-10T04:43:52.35+0000","eventType":"activity","typeURI":"http://schemas.dmtf.org/cloud/audit/1.0/event","message":"Knowledge Studio: delete document for document 9a62aae0-1b07-11ea-875c-abaf70277755-1","requestData":{"numDocumentsDeleted":1,"documentSets":[{"documentSetId":"9a62aae0-1b07-11ea-875c-abaf70277755","documentSetName":"documents_en.csv"}]}},"saveServiceCopy":true,"logSourceCRN":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000::","observer":{"name":"ActivityTracker"},"dataEvent":false}'  >> /var/log/serviceName.log
         #echo '{"payload":{"initiator":{"id":"IBMid-xxx","name":"ttauchi@jp.ibm.com","typeURI":"service/security/account/user","credential":{"type":"user"}},"target":{"id":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000:document-set:9a62aae0-1b07-11ea-875c-abaf70277755","name":"documents_en.csv","typeURI":"knowledge-studio/document-set"},"action":"knowledge-studio.document-set.delete","outcome":"success","reason":{"reasonCode":200},"severity":"critical","eventTime":"2019-12-10T04:44:01.71+0000","eventType":"activity","typeURI":"http://schemas.dmtf.org/cloud/audit/1.0/event","message":"Knowledge Studio: delete document-set for document-set 9a62aae0-1b07-11ea-875c-abaf70277755","requestData":{"numDocumentsDeleted":9,"documentSets":[{"documentSetId":"9a62aae0-1b07-11ea-875c-abaf70277755","documentSetName":"documents_en.csv"}]}},"saveServiceCopy":true,"logSourceCRN":"crn:v1:dev:public:knowledge-studio:us-south:s/null:tn42h00y-0000-0000-0000-000000000000::","observer":{"name":"ActivityTracker"},"dataEvent":false}'  >> /var/log/serviceName.log
         #echo '0341.407068000:main thread : {"action":"service.test2","eventType":"activity","initiator":{"id":"testId","name":"TestUser","typeURI":"security/account/user","credential":{"type":"token"}},"observer":{"id":"target"},"target":{"id":"testServiceId","name":"TestService","typeURI":"service/test"},"outcome":"success","reason":{"reasonCode":200},"severity":"normal","typeURI":"http://schemas.dmtf.org/cloud/audit/1.0/event"}' >> /var/log/serviceName.log
