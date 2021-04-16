@@ -12,7 +12,7 @@ spec:
   - name: "cp.stg.icr.io"
   containers:
   - name: sidecar
-    image: youngpig/myfluentd:latest
+    image: youngpig/fluentd:ruby
     ports:
     - containerPort: 9880
     imagePullPolicy: IfNotPresent
@@ -54,7 +54,7 @@ spec:
       mountPath: /var/log
 
   - name: logwriter
-    image: youngpig/mylogwriter:latest
+    image: youngpig/logwriter:ruby
     imagePullPolicy: IfNotPresent
     securityContext:    
       runAsNonRoot: true
